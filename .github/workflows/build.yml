@@ -44,4 +44,39 @@ jobs:
         with:
           name: esop-trading-1.0
           path: build/libs/esop-0.1-all.jar
+      - name: Terraform Pipeline
+
+        on:
+          push:
+            branches: [ "preethi" ]
+
+        permissions:
+          contents: read
+
+        jobs:
+          terraform:
+            name: "Terraform read t"
+            env:
+              TF_VAR_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+              TF_VAR_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+            runs-on: ubuntu-latest
+            environment: dev
+            defaults:
+              run:
+                shell: bash
+
+            steps:
+              - name: Checkout
+                uses: actions/checkout@v3
+
+              - name: Terraform Init
+                run: terraform init
+
+              - name: Terraform Plan
+                run: terraform plan
+
+              - name: Terraform Apply
+                run: terraform apply -auto-approve -input=false
+
 
