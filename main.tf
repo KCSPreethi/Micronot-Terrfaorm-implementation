@@ -82,6 +82,7 @@ resource "aws_s3_bucket_versioning" "enabled" {
     status = "Enabled"
   }
 }
+
 resource "aws_s3_bucket_server_side_encryption_configuration" "public_encryption" {
   bucket = aws_s3_bucket.preethi-tf-test-bucket.id
 
