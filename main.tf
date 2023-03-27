@@ -72,19 +72,18 @@ resource "aws_instance" "app_server" {
   }
 
 
-resource "aws_s3_bucket" "preethi-tf-test-bucket" {
-  bucket = "preethi-tf-test-bucket"
-
+resource "aws_s3_bucket" "gurukul-preethi" {
+  bucket = "gurukul-preethi"
 }
+
 resource "aws_s3_bucket_versioning" "enabled" {
-  bucket = aws_s3_bucket.preethi-tf-test-bucket.id
+  bucket = aws_s3_bucket.gurukul-preethi.id
   versioning_configuration {
     status = "Enabled"
   }
 }
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "public_encryption" {
-  bucket = aws_s3_bucket.preethi-tf-test-bucket.id
+resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
+  bucket = aws_s3_bucket.gurukul-preethi.id
 
   rule {
     apply_server_side_encryption_by_default {
@@ -92,28 +91,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "public_encryption
     }
   }
 }
-
-
-resource "aws_subnet" "preethi_subnet" {
-  vpc_id = "vpc-019c09a1a0c5b4f6b"
-
-  cidr_block = "10.0.0.48/28"
-
-  tags = {
-    "Name" = "Preethi subnet"
-  }
-
-}
-
-terraform {
-  backend "s3" {
-    bucket         = "preethi-tf-test-bucket"
-    key            = "terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-  }
-  }
-
 
 
 
