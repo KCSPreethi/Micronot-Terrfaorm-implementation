@@ -22,7 +22,6 @@ resource "local_file" "preethi-kcs-key" {
 
 provider "aws" {
   region  = "us-east-1"
-
 }
 
 resource "aws_security_group" "TF-SG" {
@@ -54,7 +53,7 @@ resource "aws_security_group" "TF-SG" {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
- 
+
   egress {
     from_port        = 0
     to_port          = 0
@@ -79,6 +78,46 @@ resource "aws_subnet" "preethi_subnet" {
   }
 
 }
+resource "aws_s3_bucket" "preethi-kcs-bucket" {
+  bucket = "preethi-kcs-bucket"
+
+}
+resource "aws_s3_bucket_versioning" "enabled" {
+  bucket = aws_s3_bucket.preethi-kcs-bucket.id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+resource "aws_s3_bucket_server_side_encryption_configuration" "public_encryption" {
+  bucket = aws_s3_bucket.preethi-kcs-bucket.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+
+resource "aws_s3_bucket_public_access_block" "public_access" {
+  bucket                  = aws_s3_bucket.preethi-kcs-bucket.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+
+
+terraform {
+  backend "s3" {
+    bucket         = "preethi-kcs-bucket"
+    region  = "us-east-1"
+    key     = "s3/terraform.tfstate"
+    encrypt        = true
+  }
+}
+
 
 
 resource "aws_instance" "app_server" {

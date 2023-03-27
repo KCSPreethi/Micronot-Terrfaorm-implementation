@@ -72,3 +72,10 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
+
+      - name: Terraform Output
+        id: terraform_output
+        run: |
+          echo key=$(terraform output -raw private_key) >> $GITHUB_OUTPUT
+          echo "::set-output public_ip=$(terraform output instance_public_ip)"
+
