@@ -191,26 +191,36 @@ jobs:
 
       - name: Terraform Output
         id: terraform_output
-        run: |
+        run:
           echo public_ip=$(terraform output instance_public_ip | tr -d '"') >> $GITHUB_OUTPUT
-          
 
-#  deploy:
-#    name: "Deploying application"
-#    runs-on: ubuntu-latest
-#    needs:
-#      - terraform
-#      - build
-#      - test
-#    steps:
-#      - name: Setup java
-#        uses: actions/setup-java@v3
-#        with:
-#          distribution: corretto
-#          java-version: 17
-#      - name: Download jar file
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: esop-trading-1.0
-
+  deploy:
+    name: "Deploying application"
+    runs-on: ubuntu-latest
+    needs:
+      - terraform
+      - build
+      - test
+    steps:
+      - name: Setup java
+        uses: actions/setup-java@v3
+        with:
+          distribution: corretto
+          java-version: 17
+      - name: Download jar file
+        uses: actions/download-artifact@v3
+        with:
+          name: esop-trading-1.0
+      - name: Copy jar file to ec2 instance
+        env:
+            SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+            SSH_HOST: ${{ needs.terraform.outputs.host }}
+        run: |
+            eval `ssh-agent`
+            echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+            ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "fuser -k 8080/tcp"          
+            scp -T -o StrictHostKeyChecking=no "esop-0.1-all.jar" ec2-user@$SSH_HOST:~
+            ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "curl -s 'https://get.sdkman.io' | bash"
+            ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "sdk install java 17.0.6-amzn"
+            ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "java -jar esop-0.1-all.jar > /dev/null"
 
