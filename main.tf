@@ -98,7 +98,7 @@ resource "aws_s3_bucket" "preethi-tf-test-bucket" {
 
 terraform {
   backend "s3" {
-    bucket         = "preethi-ts-test-bucket"
+    bucket         = "preethi-tf-test-bucket"
     region  = "us-east-1"
     key     = "s3/terraform.tfstate"
     encrypt        = true
