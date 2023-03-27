@@ -7,37 +7,6 @@ on:
     branches: [ "preethi" ]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup java
-        uses: actions/setup-java@v3
-        with:
-          distribution: corretto
-          java-version: 17
-      - name: Test
-        run: ./gradlew test
-
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup java
-        uses: actions/setup-java@v3
-        with:
-          distribution: corretto
-          java-version: 17
-      - name: Build
-        run: ./gradlew build
-      - name: Copy jar file to artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: esop-trading-1.0
-          path: build/libs/esop-0.1-all.jar
-
   terraform:
     name: "Terraform Pipeline"
     env:
@@ -76,6 +45,63 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
 
+      - name: Terraform Output
+        id: terraform_output
+        run: |
+          echo public_ip=$(terraform output instance_public_ip | tr -d '"') >> $GITHUB_OUTPUT
+
+      - name : Terraform destroy
+        run: terraform destroy
+
+
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup java
+        uses: actions/setup-java@v3
+        with:
+          distribution: corretto
+          java-version: 17
+      - name: Test
+        run: ./gradlew test
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup java
+        uses: actions/setup-java@v3
+        with:
+          distribution: corretto
+          java-version: 17
+      - name: Build
+        run: ./gradlew build
+      - name: Copy jar file to artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: esop-trading-1.0
+          path: build/libs/esop-0.1-all.jar
+  deploy:
+    name: "deploy the application"
+    runs-on: ubuntu-latest
+    needs:
+      - terraform
+      - build
+      - test
+    steps:
+      - name: Setup java
+        uses: actions/setup-java@v3
+        with:
+          distribution: corretto
+          java-version: 17
+      - name: Download jar file
+        uses: actions/download-artifact@v3
+        with:
+          name: esop-trading-0.1-all
 
 
 

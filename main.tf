@@ -13,20 +13,6 @@ provider "aws" {
   region  = "us-east-1"
 }
 
-
-resource "aws_key_pair" "preethi-kcs-key" {
-  key_name   = "preethi-kcs-key"
-  public_key = tls_private_key.rsa.public_key_openssh
-}
-resource "tls_private_key" "rsa" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-resource "local_file" "preethi-kcs-key" {
-  content  = tls_private_key.rsa.private_key_pem 
-  filename = "tfkey.pem"
-}
-
 resource "aws_security_group" "TF-SG" {
   name        = "security_group_terraform"
   description = "security_group_terraform"
