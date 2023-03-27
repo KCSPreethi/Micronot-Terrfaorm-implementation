@@ -81,19 +81,15 @@ resource "aws_subnet" "preethi_subnet" {
 resource "aws_s3_bucket" "preethi-kcs-bucket" {
   bucket = "preethi-kcs-bucket"
 
-}
-resource "aws_s3_bucket_versioning" "enabled" {
-  bucket = aws_s3_bucket.preethi-kcs-bucket.id
-  versioning_configuration {
-    status = "Enabled"
+  versioning {
+    enabled = true
   }
-}
-resource "aws_s3_bucket_server_side_encryption_configuration" "public_encryption" {
-  bucket = aws_s3_bucket.preethi-kcs-bucket.id
 
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm = "AES256"
+      }
     }
   }
 }
