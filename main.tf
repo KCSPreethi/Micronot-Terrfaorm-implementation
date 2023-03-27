@@ -93,12 +93,3 @@
     }
   }
 
-    # Move the backend configuration below the S3 bucket resource
-    terraform {
-    backend "s3" {
-    bucket         = "gurukul-preethi"
-    key            = "terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    }
-  }
