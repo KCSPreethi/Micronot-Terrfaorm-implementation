@@ -5,16 +5,8 @@
       version = "~> 4.16"
     }
   }
-
-    backend "s3" {
-      bucket         = "preethi-tf-test-bucket"
-      region  = "us-east-1"
-      key     = "s3/terraform.tfstate"
-      encrypt        = true
-    }
   required_version = ">= 1.2.0"
 }
-
 
 provider "aws" {
   region  = "us-east-1"
