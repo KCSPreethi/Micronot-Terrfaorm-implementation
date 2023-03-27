@@ -62,5 +62,10 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_wrapper: false
+
       - name: Terraform Plan
         run: terraform plan -input=false

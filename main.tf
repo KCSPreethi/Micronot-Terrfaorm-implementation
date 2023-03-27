@@ -22,6 +22,7 @@ resource "local_file" "preethi-kcs-key" {
 
 provider "aws" {
   region  = "us-east-1"
+
 }
 
 resource "aws_security_group" "TF-SG" {
