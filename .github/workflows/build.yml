@@ -1,69 +1,34 @@
-name: Test Build Deploy
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
+
+name: Java CI with Gradle
 
 on:
   push:
-    branches: [ "preethi" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "preethi" ]
+    branches: [ "main" ]
+
+permissions:
+  contents: read
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup java
-        uses: actions/setup-java@v3
-        with:
-          distribution: corretto
-          java-version: 17
-      - name: Test
-        run: ./gradlew test
-
   build:
+
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup java
+      - uses: actions/checkout@v3
+      - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
-          distribution: corretto
-          java-version: 17
-      - name: Build
-        run: ./gradlew build
-      - name: Copy jar file to artifacts
-        uses: actions/upload-artifact@v3
+          java-version: '17'
+          distribution: 'corretto'
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@v2.3.3
         with:
-          name: esop-trading-1.0
-          path: build/libs/esop-0.1-all.jar
-
-  terraform:
-    name: "Terraform Pipeline"
-    env:
-      TF_VAR_AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      TF_VAR_AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-    runs-on: ubuntu-latest
-    environment: dev
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: "1.0.11"
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Plan
-        run: terraform plan
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve -input=false
+          arguments: build
