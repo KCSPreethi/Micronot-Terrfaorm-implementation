@@ -67,7 +67,6 @@ resource "aws_security_group" "TF-SG" {
   }
 }
 
-}
 resource "aws_s3_bucket" "preethi-tf-test-bucket" {
   bucket = "preethi-tf-test-bucket"
 
