@@ -67,10 +67,16 @@ jobs:
         with:
           terraform_wrapper: false
 
+      - name: Terraform output
+        run: echo "{environment_variable_name}={value}" >> $GITHUB_ENV
+
       - name: Terraform Plan
         run: terraform plan
 
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
+
+
+
 
 
