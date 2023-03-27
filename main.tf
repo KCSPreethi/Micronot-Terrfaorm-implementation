@@ -103,6 +103,7 @@ resource "aws_subnet" "preethi_subnet" {
 
 }
 
+
 # terraform {
 #   backend "s3" {
 #     bucket         = "preethi-tf-test-bucket"
