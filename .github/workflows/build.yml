@@ -35,9 +35,9 @@ jobs:
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_wrapper: false
-
-      - name: Terraform output
-        run: echo "{environment_variable_name}={value}" >> $GITHUB_ENV
+#
+#      - name: Terraform output
+#        run: echo "{environment_variable_name}={value}" >> $GITHUB_ENV
 
       - name: Terraform Plan
         run: terraform plan
@@ -45,10 +45,10 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
 
-      - name: Terraform Output
-        id: terraform_output
-        run: |
-          echo public_ip=$(terraform output instance_public_ip | tr -d '"') >> $GITHUB_OUTPUT
+#      - name: Terraform Output
+#        id: terraform_output
+#        run: |
+#          echo public_ip=$(terraform output instance_public_ip | tr -d '"') >> $GITHUB_OUTPUT
 
 
   test:
