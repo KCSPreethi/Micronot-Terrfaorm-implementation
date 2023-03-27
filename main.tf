@@ -103,12 +103,12 @@ resource "aws_subnet" "preethi_subnet" {
 
 }
 
-terraform {
-  backend "s3" {
-    bucket         = "preethi-tf-test-bucket"
-    region  = "us-east-1"
-    key     = "s3/terraform.tfstate"
-    encrypt        = true
-  }
-}
+# terraform {
+#   backend "s3" {
+#     bucket         = "preethi-tf-test-bucket"
+#     region  = "us-east-1"
+#     key     = "s3/terraform.tfstate"
+#     encrypt        = true
+#   }
+# }
 
