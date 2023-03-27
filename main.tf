@@ -7,6 +7,13 @@
   }
   required_version = ">= 1.2.0"
 }
+
+
+provider "aws" {
+  region  = "us-east-1"
+}
+
+
 resource "aws_key_pair" "preethi-kcs-key" {
   key_name   = "preethi-kcs-key"
   public_key = tls_private_key.rsa.public_key_openssh
@@ -18,10 +25,6 @@ resource "tls_private_key" "rsa" {
 resource "local_file" "preethi-kcs-key" {
   content  = tls_private_key.rsa.private_key_pem 
   filename = "tfkey.pem"
-}
-
-provider "aws" {
-  region  = "us-east-1"
 }
 
 resource "aws_security_group" "TF-SG" {
@@ -69,7 +72,6 @@ resource "aws_security_group" "TF-SG" {
 
 resource "aws_s3_bucket" "preethi-tf-test-bucket" {
   bucket = "preethi-tf-test-bucket"
-
 }
 resource "aws_s3_bucket_versioning" "enabled" {
   bucket = aws_s3_bucket.preethi-tf-test-bucket.id
