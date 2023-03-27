@@ -12,6 +12,7 @@
     region  = "us-east-1"
   }
     
+    
     resource "aws_security_group" "TF-SG" {
     name        = "security_group_terraform"
     description = "security_group_terraform"
