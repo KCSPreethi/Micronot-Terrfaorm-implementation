@@ -68,4 +68,4 @@ jobs:
           terraform_wrapper: false
 
       - name: Terraform Plan
-        run: terraform plan -input=false
+        run: terraform plan
