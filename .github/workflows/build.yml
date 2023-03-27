@@ -10,7 +10,7 @@ jobs:
   terraform:
     name: "Terraform Pipeline"
     env:
-      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     runs-on: ubuntu-latest
@@ -49,10 +49,6 @@ jobs:
         id: terraform_output
         run: |
           echo public_ip=$(terraform output instance_public_ip | tr -d '"') >> $GITHUB_OUTPUT
-
-      - name : Terraform destroy
-        run: terraform destroy
-
 
 
   test:
@@ -102,6 +98,9 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: esop-trading-0.1-all
+
+
+
 
 
 

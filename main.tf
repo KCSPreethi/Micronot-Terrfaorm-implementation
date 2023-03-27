@@ -7,8 +7,6 @@
   }
   required_version = ">= 1.2.0"
 }
-
-
 provider "aws" {
   region  = "us-east-1"
 }
@@ -56,8 +54,26 @@ resource "aws_security_group" "TF-SG" {
   }
 }
 
+
+resource "aws_instance" "app_server" {
+  ami           = "ami-00c39f71452c08778"
+  instance_type = "t2.micro"
+  subnet_id = aws_subnet.preethi_subnet.id
+  key_name= "preethi-kcs-key"
+  vpc_security_group_ids = [aws_security_group.TF-SG.id]
+
+  associate_public_ip_address = true
+
+  tags = {
+    Name = "Preethi-EC2"
+  }
+
+  }
+
+
 resource "aws_s3_bucket" "preethi-tf-test-bucket" {
   bucket = "preethi-tf-test-bucket"
+
 }
 resource "aws_s3_bucket_versioning" "enabled" {
   bucket = aws_s3_bucket.preethi-tf-test-bucket.id
@@ -87,7 +103,6 @@ resource "aws_subnet" "preethi_subnet" {
 
 }
 
-
 terraform {
   backend "s3" {
     bucket         = "preethi-tf-test-bucket"
@@ -97,19 +112,3 @@ terraform {
   }
 }
 
-
-
-resource "aws_instance" "app_server" {
-  ami           = "ami-00c39f71452c08778"
-  instance_type = "t2.micro"
-  subnet_id = aws_subnet.preethi_subnet.id
-  key_name= "preethi-kcs-key"
-  vpc_security_group_ids = [aws_security_group.TF-SG.id]
-
-  associate_public_ip_address = true
-
-  tags = {
-    Name = "Preethi-EC2"
-  }
-
-  }
