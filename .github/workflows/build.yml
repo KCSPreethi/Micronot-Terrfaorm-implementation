@@ -1,104 +1,216 @@
-  terraform {
-    required_providers {
-    aws = {
-    source  = "hashicorp/aws"
-    version = "~> 4.16"
-    }
-    }
-    required_version = ">= 1.2.0"
-  }
-    
-    provider "aws" {
-    region  = "us-east-1"
-  }
-    
-    
-    resource "aws_security_group" "TF-SG" {
-    name        = "security_group_terraform"
-    description = "security_group_terraform"
-    vpc_id      = "vpc-019c09a1a0c5b4f6b"
-    #HTTPS
-    ingress {
-    description      = "HTTPS"
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-    }
-    ingress {
-    description      = "HTTP"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-    }
-    ingress {
-    description      = "SSH"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-    }
-    
-    egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-    }
-    
-    tags = {
-    Name = "TF-SG"
-    }
-  }
-    
-    
-    resource "aws_instance" "app_server" {
-    ami           = "ami-00c39f71452c08778"
-    instance_type = "t2.micro"
-    subnet_id = aws_subnet.preethi_subnet.id
-    key_name= "preethi-kcs-key"
-    vpc_security_group_ids = [aws_security_group.TF-SG.id]
-    
-    associate_public_ip_address = true
-    
-    tags = {
-    Name = "Preethi-EC2"
-    }
-
-  }
+#name: Test Build Deploy
+#
+#on:
+#  push:
+#    branches: [ "preethi" ]
+#  pull_request:
+#    branches: [ "preethi" ]
+#
+#jobs:
+#  terraform:
+#    name: "Terraform Pipeline"
+#    env:
+#      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+#      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#
+#    runs-on: ubuntu-latest
+#    environment: dev
+#    defaults:
+#      run:
+#        shell: bash
+#
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#
+#      - name: Install Terraform
+#        uses: hashicorp/setup-terraform@v1
+#        with:
+#          terraform_version: "1.2.0"
+#
+#      - name: Terraform Init
+#        run: terraform init
+#
+#      - name: Setup Terraform
+#        uses: hashicorp/setup-terraform@v1
+#        with:
+#          terraform_wrapper: false
+##
+##      - name: Terraform output
+##        run: echo "{environment_variable_name}={value}" >> $GITHUB_ENV
+#
+#      - name: Terraform Plan
+#        run: terraform plan
+#
+#      - name: Terraform Apply
+#        run: terraform apply -auto-approve -input=false
+#
+##      - name: Terraform Output
+##        id: terraform_output
+##        run: |
+##          echo public_ip=$(terraform output instance_public_ip | tr -d '"') >> $GITHUB_OUTPUT
 
 
-    resource "aws_s3_bucket" "gurukul-preethi" {
-    bucket = "gurukul-preethi"
-  }
-    
-    resource "aws_s3_bucket_versioning" "enabled" {
-    bucket = aws_s3_bucket.gurukul-preethi.id
-    versioning_configuration {
-    status = "Enabled"
-    }
-  }
-    resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
-    bucket = aws_s3_bucket.gurukul-preethi.id
-    
-    rule {
-    apply_server_side_encryption_by_default {
-    sse_algorithm = "AES256"
-    }
-    }
-  }
-    
-    # Move the backend configuration below the S3 bucket resource
-    terraform {
-    backend "s3" {
-    bucket         = "gurukul-preethi"
-    key            = "terraform.tfstate"
-    region         = "us-east-1"
-    encrypt        = true
-    }
-  }
+#  test:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#      - name: Setup java
+#        uses: actions/setup-java@v3
+#        with:
+#          distribution: corretto
+#          java-version: 17
+#      - name: Test
+#        run: ./gradlew test
+#
+#  build:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#      - name: Setup java
+#        uses: actions/setup-java@v3
+#        with:
+#          distribution: corretto
+#          java-version: 17
+#      - name: Build
+#        run: ./gradlew build
+#      - name: Copy jar file to artifacts
+#        uses: actions/upload-artifact@v3
+#        with:
+#          name: esop-trading-1.0
+#          path: build/libs/esop-0.1-all.jar
+#  deploy:
+#    name: "deploy the application"
+#    runs-on: ubuntu-latest
+#    needs:
+#      - terraform
+#      - build
+#      - test
+#    steps:
+#      - name: Setup java
+#        uses: actions/setup-java@v3
+#        with:
+#          distribution: corretto
+#          java-version: 17
+#      - name: Download jar file
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: esop-trading-0.1-all
+#
+#
+#
+
+
+
+name: Test Build Deploy
+
+on:
+  push:
+    branches: [ "preethi" ]
+  pull_request:
+    branches: [ "preethi" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup java
+        uses: actions/setup-java@v3
+        with:
+          distribution: corretto
+          java-version: 17
+      - name: Test
+        run: ./gradlew test
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup java
+        uses: actions/setup-java@v3
+        with:
+          distribution: corretto
+          java-version: 17
+      - name: Build
+        run: ./gradlew build
+      - name: Copy jar file to artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: esop-trading-1.0
+          path: build/libs/esop-0.1-all.jar
+
+  terraform:
+    name: "Terraform Pipeline"
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    runs-on: ubuntu-latest
+    environment: dev
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: "1.2.0"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Terraform Init
+        run: terraform init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply final
+        run: terraform apply -auto-approve -input=false
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+
+      - name: Terraform Output
+        id: terraform_output
+        run: |
+          echo public_ip=$(terraform output instance_public_ip | tr -d '"') >> $GITHUB_OUTPUT
+          
+
+#  deploy:
+#    name: "Deploying application"
+#    runs-on: ubuntu-latest
+#    needs:
+#      - terraform
+#      - build
+#      - test
+#    steps:
+#      - name: Setup java
+#        uses: actions/setup-java@v3
+#        with:
+#          distribution: corretto
+#          java-version: 17
+#      - name: Download jar file
+#        uses: actions/download-artifact@v3
+#        with:
+#          name: esop-trading-1.0
+
+
