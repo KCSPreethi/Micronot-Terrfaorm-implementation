@@ -222,12 +222,20 @@ jobs:
             SSH_HOST: ${{ needs.terraform.outputs.public_ip }}
         run: |
           eval `ssh-agent`
-          echo "Private Key"
           echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-          echo "kill the running port at 8080"
-          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "lsof -i tcp:8080 | awk '/8080/{print $2}' | xargs kill"  
-          echo "Creating a safe copy"
+          
+          # Kill any process running on port 8080
+          echo "Killing any process running on port 8080"
+          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "lsof -i tcp:8080 | awk '/8080/{print \$2}' | xargs kill -9"
+          
+          # Copy the jar file to the remote server
+          echo "Copying the jar file to the remote server"
           scp -T -o StrictHostKeyChecking=no "esop-0.1-all.jar" ec2-user@$SSH_HOST:~
+          
+          # Install Java and run the jar file
+          echo "Installing Java and running the jar file"
           ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "curl -s 'https://get.sdkman.io' | bash"
-          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "sdk install java 17.0.6-amzn"
-          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "java -jar esop-0.1-all.jar > /dev/null"
+          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "source ~/.sdkman/bin/sdkman-init.sh && sdk install java 17.0.6-amzn"
+          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "java -jar esop-0.1-all.jar > /dev/null &"
+          
+  
