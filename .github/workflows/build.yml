@@ -116,27 +116,52 @@ jobs:
         run: |
           eval `ssh-agent`
           echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-          
-         
-          echo "Killing any process running on port 8080"
-          echo "Checking if any process is running on port 8080"
-          if ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "lsof -i :8080 > /dev/null 2>&1"; then
-          echo "Killing any process running on port 8080"
-          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "lsof -i tcp:8080 | awk '/8080/{print \$2}' | xargs kill -9"
+          ssh_host=$(cat public_ip.txt | tr -d '"');
+          scp -o StrictHostKeyChecking=no "esop-0.1-all.jar" ec2-user@$SSH_HOST:~
+          ssh -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t 'sudo yum install java-17-amazon-corretto-headless -y;
+          echo "Installed java";
+          ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts;
+          echo "Host added";
+          pid=$(sudo fuser -v -n tcp 8080);
+          echo "$pid";
+          #!/bin/sh;
+          echo "script";
+          if [ $pid ]
+            then
+            echo "then"
+            sudo fuser -k -n tcp 8080  
+            echo "process killed"
           fi
-      
-          
-          echo "Copying the jar file to the remote server"
-          scp -T -o StrictHostKeyChecking=no "esop_trading_platform-0.1-all.jar" ec2-user@$SSH_HOST:~
-          
-        
-          echo "Installing Java and running the jar file"
-          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "curl -s 'https://get.sdkman.io' | bash"
-          
-          
-          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "source ~/.sdkman/bin/sdkman-init.sh && sdk install java 17.0.6-amzn"
-          echo "Done with installing java"
-          echo "Run the Jar file"
-          ssh -tt -o StrictHostKeyChecking=no ec2-user@$SSH_HOST "sudo MICRONAUT_SERVER_PORT=80 java -jar esop_trading_platform-0.1-all.jar >/dev/null &"
-          echo "Process Running in port 8080"
-          echo "Run successful"
+          echo "Done with killing";
+          sudo nohup java -jar esop_trading_platform-0.1-all.jar >/dev/null;
+          echo "Process Started"'
+
+
+
+
+#          eval `ssh-agent`
+#          echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+#
+#
+#          echo "Killing any process running on port 8080"
+#          echo "Checking if any process is running on port 8080"
+#          if ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "lsof -i :8080 > /dev/null 2>&1"; then
+#          echo "Killing any process running on port 8080"
+#          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "lsof -i tcp:8080 | awk '/8080/{print \$2}' | xargs kill -9"
+#          fi
+#
+#
+#          echo "Copying the jar file to the remote server"
+#          scp -T -o StrictHostKeyChecking=no "esop_trading_platform-0.1-all.jar" ec2-user@$SSH_HOST:~
+#
+#
+#          echo "Installing Java and running the jar file"
+#          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "curl -s 'https://get.sdkman.io' | bash"
+#
+#
+#          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "source ~/.sdkman/bin/sdkman-init.sh && sdk install java 17.0.6-amzn"
+#          echo "Done with installing java"
+#          echo "Run the Jar file"
+#          ssh -tt -o StrictHostKeyChecking=no ec2-user@$SSH_HOST "sudo MICRONAUT_SERVER_PORT=80 java -jar esop_trading_platform-0.1-all.jar >/dev/null &"
+#          echo "Process Running in port 80"
+#          echo "Run successful"
