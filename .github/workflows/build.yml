@@ -143,6 +143,16 @@ jobs:
         with:
           name: esop-trading-0.1-all
           path: build/libs/esop_trading_platform-0.1-all.jar
+      - name: Setup java
+        uses: actions/setup-java@v3
+        with:
+          distribution: corretto
+          java-version: 17
+      - name: Download jar file
+        uses: actions/download-artifact@v3
+        with:
+          name: esop-trading-0.1-all
+
 
   terraform:
     name: "Terraform Pipeline"
