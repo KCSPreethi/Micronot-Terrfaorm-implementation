@@ -152,7 +152,6 @@ jobs:
 
     runs-on: ubuntu-latest
     outputs:
-      key: ${{ steps.terraform_output.outputs.key }}
       public_ip: ${{ steps.terraform_output.outputs.public_ip }}
 
     environment: dev
@@ -186,6 +185,7 @@ jobs:
       - name: Terraform Plan
         run: terraform plan
 
+
       - name: Terraform Apply final
         run: terraform apply -auto-approve -input=false
         env:
@@ -196,7 +196,6 @@ jobs:
       - name: Terraform Output
         id: terraform_output
         run:
-          echo key=$(terraform output -raw private_key) >> $GITHUB_OUTPUT
           echo public_ip=$(terraform output instance_public_ip) | tr -d '"' >> $GITHUB_OUTPUT
 
   deploy:
