@@ -109,7 +109,6 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: esop-trading-0.1-all
-
       - name: Copy jar file to ec2 instance
         env:
             SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
@@ -128,7 +127,7 @@ jobs:
       
           
           echo "Copying the jar file to the remote server"
-          scp -T -o StrictHostKeyChecking=no "esop-trading-0.1-all.jar" ec2-user@$SSH_HOST:~
+          scp -T -o StrictHostKeyChecking=no "esop_trading_platform-0.1-all.jar" ec2-user@$SSH_HOST:~
           
         
           echo "Installing Java and running the jar file"
