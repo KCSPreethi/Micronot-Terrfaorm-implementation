@@ -8,6 +8,8 @@
     required_version = ">= 1.2.0"
   }
 
+
+
     provider "aws" {
     region  = "us-east-1"
   }
@@ -34,6 +36,7 @@
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
     }
+
     ingress {
     description      = "SSH"
     from_port        = 22
@@ -56,8 +59,7 @@
     }
   }
 
-
-    resource "aws_instance" "app_server" {
+resource "aws_instance" "app_server" {
     ami           = "ami-00c39f71452c08778"
     instance_type = "t2.micro"
     subnet_id = aws_subnet.preethi_subnet.id
@@ -71,27 +73,14 @@
     }
 
   }
-
-
-    resource "aws_s3_bucket" "gurukul-preethi" {
-    bucket = "gurukul-preethi"
-  }
-
-    resource "aws_s3_bucket_versioning" "enabled" {
-    bucket = aws_s3_bucket.gurukul-preethi.id
-    versioning_configuration {
-    status = "Enabled"
+   terraform {
+      backend "s3" {
+        bucket         = "gurukul-preethi"
+        region  = "us-east-1"
+        key     = "s3/terraform.tfstate"
+        encrypt        = true
+      }
     }
-  }
-    resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
-    bucket = aws_s3_bucket.gurukul-preethi.id
-
-    rule {
-    apply_server_side_encryption_by_default {
-    sse_algorithm = "AES256"
-    }
-    }
-  }
 
 resource "aws_subnet" "preethi_subnet" {
   vpc_id = "vpc-019c09a1a0c5b4f6b"
