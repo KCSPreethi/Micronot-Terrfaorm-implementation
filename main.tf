@@ -96,7 +96,7 @@
 resource "aws_subnet" "preethi_subnet" {
   vpc_id = "vpc-019c09a1a0c5b4f6b"
 
-  cidr_block = "10.0.0.48/28"
+  cidr_block = "10.0.0.128/28"
 
   tags = {
     "Name" = "Preethi subnet"
