@@ -132,7 +132,10 @@ jobs:
         
           echo "Installing Java and running the jar file"
           ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "curl -s 'https://get.sdkman.io' | bash"
-        
-          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "source ~/.sdkman/bin/sdkman-init.sh && sdk install java 17.0.6-amzn"
-          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "java -jar esop-trading-0.1-all.jar > /dev/null &"
           
+          
+          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "source ~/.sdkman/bin/sdkman-init.sh && sdk install java 17.0.6-amzn"
+          echo "Done with installing java"
+          echo "Run the Jar file"
+          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "java -jar esop_trading_platform-0.1-all.jar > /dev/null &"
+          echo "Run successful"
