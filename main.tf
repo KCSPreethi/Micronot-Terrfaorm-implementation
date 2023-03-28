@@ -21,9 +21,9 @@
     vpc_id      = "vpc-019c09a1a0c5b4f6b"
     #HTTPS
     ingress {
-    description      = "HTTPS"
-    from_port        = 443
-    to_port          = 443
+    description      = "Local port"
+    from_port        = 8080
+    to_port          = 8080
     protocol         = "tcp"
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
