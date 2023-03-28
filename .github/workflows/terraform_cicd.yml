@@ -69,7 +69,7 @@ jobs:
           path: terraform/aws_instance/public_ip.txt
   Copy the artifacts:
           needs: "terraform"
-          uses: KCSPreethi/Micronot-Terrfaorm-implementation/.github/workflows/build.yml@/preethi
+          uses: KCSPreethi/Micronot-Terrfaorm-implementation/.github/workflows/build.yml/@preethi
           secrets:
             EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
           with:
