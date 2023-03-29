@@ -38,10 +38,65 @@ jobs:
           name: esop-trading-0.1-all
           path: build/libs/esop_trading_platform-0.1-all.jar
 
+  terraform:
+    name: "Terraform Pipeline"
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    runs-on: ubuntu-latest
+    outputs:
+      public_ip: ${{ steps.terraform_output.outputs.public_ip }}
+
+    environment: dev
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: "1.2.0"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Terraform Init
+        run: terraform init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Plan
+        run: terraform plan
+
+
+      - name: Terraform Apply final
+        run: terraform apply -auto-approve -input=false
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+
+      - name: Terraform Output
+        id: terraform_output
+        run:
+          echo public_ip=$(terraform output instance_public_ip) | tr -d '"' >> $GITHUB_OUTPUT
+
   deploy:
     name: "Deploying application"
     runs-on: ubuntu-latest
     needs:
+      - terraform
       - build
       - test
     steps:
@@ -50,47 +105,63 @@ jobs:
         with:
           distribution: corretto
           java-version: 17
-
-
       - name: Download jar file
         uses: actions/download-artifact@v3
         with:
           name: esop-trading-0.1-all
-#      - name: download public_ip file
-#        run: |
-#          aws s3 cp s3://gurukul-preethi/s3-bucket/public_ip.txt public_ip.txt
-#          cat public_ip.txt
-#        env:
-#          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-#          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          AWS_DEFAULT_REGION: 'us-east-1'
+      - name: Copy jar file to ec2 instance
+        env:
+          SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+          SSH_HOST: ${{ needs.terraform.outputs.public_ip }}
+        run: |
+          eval `ssh-agent`
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+          ssh_host=$(cat public_ip.txt | tr -d '"');
+          scp -o StrictHostKeyChecking=no "esop_trading_platform-0.1-all.jar" ec2-user@$SSH_HOST:~
+          ssh -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t 'sudo yum install java-17-amazon-corretto-headless -y;
+          echo "Installed java";
+          ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts;
+          echo "Host added";
+          pid=$(sudo fuser -v -n tcp 8080);
+          echo "$pid";
+          #!/bin/sh;
+          echo "script";
+          if [ $pid ]
+            then
+            echo "then"
+            sudo fuser -k -n tcp 8080  
+            echo "process killed"
+          fi
+          echo "Done with killing";
+          sudo nohup java -jar esop_trading_platform-0.1-all.jar >/dev/null;
+          echo "Process Started"'
 
-#
-#
-#      - name: Copy jar file to ec2 instance
-#        env:
-#            SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
-#            SSH_HOST: ${{ needs.terraform.outputs.public_ip }}
-#        run: |
+
+
+
 #          eval `ssh-agent`
 #          echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-#          ssh_host=$(cat public_ip.txt | tr -d '"');
-#          scp -o StrictHostKeyChecking=no "esop_trading_platform-0.1-all.jar" ec2-user@$SSH_HOST:~
-#          ssh -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t 'sudo yum install java-17-amazon-corretto-headless -y;
-#          echo "Installed java";
-#          ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts;
-#          echo "Host added";
-#          pid=$(sudo fuser -v -n tcp 8080);
-#          echo "$pid";
-#          #!/bin/sh;
-#          echo "script";
-#          if [ $pid ]
-#            then
-#            echo "then"
-#            sudo fuser -k -n tcp 8080
-#            echo "process killed"
-#          fi
-#          echo "Done with killing";
-#          sudo nohup java -jar esop_trading_platform-0.1-all.jar >/dev/null;
-#          echo "Process Started"'
 #
+#
+#          echo "Killing any process running on port 8080"
+#          echo "Checking if any process is running on port 8080"
+#          if ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "lsof -i :8080 > /dev/null 2>&1"; then
+#          echo "Killing any process running on port 8080"
+#          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "lsof -i tcp:8080 | awk '/8080/{print \$2}' | xargs kill -9"
+#          fi
+#
+#
+#          echo "Copying the jar file to the remote server"
+#          scp -T -o StrictHostKeyChecking=no "esop_trading_platform-0.1-all.jar" ec2-user@$SSH_HOST:~
+#
+#
+#          echo "Installing Java and running the jar file"
+#          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "curl -s 'https://get.sdkman.io' | bash"
+#
+#
+#          ssh -T -o StrictHostKeyChecking=no ec2-user@$SSH_HOST -t "source ~/.sdkman/bin/sdkman-init.sh && sdk install java 17.0.6-amzn"
+#          echo "Done with installing java"
+#          echo "Run the Jar file"
+#          ssh -tt -o StrictHostKeyChecking=no ec2-user@$SSH_HOST "sudo MICRONAUT_SERVER_PORT=80 java -jar esop_trading_platform-0.1-all.jar >/dev/null &"
+#          echo "Process Running in port 80"
+#          echo "Run successful"
