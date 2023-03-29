@@ -54,6 +54,7 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
       - name: Terraform Output
         id: terraform_output
         run: |
@@ -82,9 +83,8 @@ jobs:
           echo $(terraform output instance_public_ip)
           echo "Save the IP"
           pwd
-          cp -p <(echo $(terraform output instance_public_ip)) ./ip_add/public_ip.txt
 
-#          cp terraform output instance_public_ip  ./ip_add/public_ip.txt
+          cp echo $(terraform output instance_public_ip) ./ip_add/public_ip.txt
           
           echo "Current working Directory :"
           pwd
