@@ -85,7 +85,7 @@ jobs:
           echo $(terraform output instance_public_ip)
           echo "Save the IP"
           pwd
-          cp terraform output instance_public_ip  ip_add/public_ip.txt
+          cp terraform output instance_public_ip  /ip_add/public_ip.txt
           
           echo "Current working Directory :"
           pwd
