@@ -74,17 +74,15 @@ jobs:
           ls
           
         
-          readlink -f public_ip.txt
           echo "file created"
           cd ..
           echo "Current working Directory :"
           pwd
           echo "IP address"
-          echo $(terraform output instance_public_ip)
+          echo "$terraform output instance_public_ip"
           echo "Save the IP"
           pwd
-
-          cp echo $(terraform output instance_public_ip) ./ip_add/public_ip.txt
+          echo "$(terraform output instance_public_ip)" > ./ip_add/public_ip.txt
           
           echo "Current working Directory :"
           pwd
