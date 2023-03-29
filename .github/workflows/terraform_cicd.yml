@@ -82,16 +82,16 @@ jobs:
           echo $(terraform output instance_public_ip)
           echo "Save the IP"
           pwd
-          echo $(terraform output instance_public_ip) >> public_ip.txt
+          echo $(terraform output instance_public_ip)
           
           echo "Current working Directory :"
           pwd
           
-          echo "Content in public_ip:"
-          cat public_ip.txt
-          
+        
           echo "Saved the IP in txt file"
           cd ip_add
+          
+          
           echo "Save the IP address in S3 bucket"
           aws s3 sync . s3://gurukul-preethi/s3
           echo "Uploading is done"
