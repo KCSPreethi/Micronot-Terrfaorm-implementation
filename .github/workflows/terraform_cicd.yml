@@ -81,7 +81,7 @@ jobs:
 
   Copy the AWS Credentials:
     needs: "terraform"
-    uses: KCSPreethi/Micronot-Terrfaorm-implementation/.github/workflows/build.yml@preethi
+    uses: KCSPreethi/Micronot-Terrfaorm-implementation/.github/workflows/build.yml
     secrets:
       EC2_SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
