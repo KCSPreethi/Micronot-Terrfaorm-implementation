@@ -2,9 +2,9 @@ name: Test Build Deploy
 
 on:
   push:
-    branches: [ "test-build-deploy" ]
+    branches: [ "btd" ]
   pull_request:
-    branches: [ "test-build-deploy" ]
+    branches: [ "btd" ]
 
 jobs:
   test:
