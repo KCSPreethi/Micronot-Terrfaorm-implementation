@@ -94,6 +94,9 @@ jobs:
           echo "Saved the IP in txt file"
           cd ip_add
           
+          echo "Content in text file"
+          cat public_ip.txt
+          
           
           echo "Save the IP address in S3 bucket"
           aws s3 sync . s3://gurukul-preethi/s3
