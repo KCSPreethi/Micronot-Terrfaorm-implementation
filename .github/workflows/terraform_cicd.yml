@@ -65,14 +65,13 @@ jobs:
           touch public_ip.txt
           readlink -f public_ip.txt
           echo "file created"
-          cd ..
           echo $(terraform output instance_public_ip)
           echo "Save the IP"
-          echo $(terraform output instance_public_ip) >> ip_add/public_ip.txt
+          echo $(terraform output instance_public_ip) >> public_ip.txt
           echo "Saved the IP in txt file"
           cd ip_add
           echo "Save the IP address in S3 bucket"
-          aws s3 sync . s3://gurukul-preethi/s3-bucket
+          aws s3 sync . s3://gurukul-preethi/s3
           echo "Uploading is done"
         
         
