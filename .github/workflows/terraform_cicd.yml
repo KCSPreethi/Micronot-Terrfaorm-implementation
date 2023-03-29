@@ -60,14 +60,36 @@ jobs:
         id: terraform_output
         run: |
           echo "Make directory for IP"
+          echo "Current working Directory :"
+          pwd
           mkdir ip_add
           cd ip_add
+          echo "Current working Directory :"
+          pwd
+          
+          
           touch public_ip.txt
+          
+          echo "Current working Directory :"
+          pwd
+          echo "Contents in the directory: "
+          ls
+          
+          
           readlink -f public_ip.txt
           echo "file created"
+          
           echo $(terraform output instance_public_ip)
           echo "Save the IP"
+          pwd
           echo $(terraform output instance_public_ip) >> public_ip.txt
+          
+          echo "Current working Directory :"
+          pwd
+          
+          echo "Content in public_ip:"
+          cat public_ip.txt
+          
           echo "Saved the IP in txt file"
           cd ip_add
           echo "Save the IP address in S3 bucket"
@@ -75,13 +97,3 @@ jobs:
           echo "Uploading is done"
         
         
-        
-        
-#
-#  Copy the AWS Credentials:
-#    needs: "terraform"
-#    uses: KCSPreethi/Micronot-Terrfaorm-implementation/.github/workflows/build.yml
-#    secrets:
-#      EC2_SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-#      AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY }}
-#      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
